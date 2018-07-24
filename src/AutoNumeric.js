@@ -1143,6 +1143,7 @@ export default class AutoNumeric {
         this._onFocusFunc = () => { this._onFocus(); };
         this._onKeydownFunc = e => { this._onKeydown(e); };
         this._onKeypressFunc = e => { this._onKeypress(e); };
+        this._onInputFunc = e => { this._onInput(e); };
         this._onKeyupFunc = e => { this._onKeyup(e); };
         this._onFocusOutAndMouseLeaveFunc = e => { this._onFocusOutAndMouseLeave(e); };
         this._onPasteFunc = e => { this._onPaste(e); };
@@ -1158,6 +1159,7 @@ export default class AutoNumeric {
         this.domElement.addEventListener('mouseenter', this._onFocusInAndMouseEnterFunc, false);
         this.domElement.addEventListener('keydown', this._onKeydownFunc, false);
         this.domElement.addEventListener('keypress', this._onKeypressFunc, false);
+        this.domElement.addEventListener('input', this._onInputFunc, false);
         this.domElement.addEventListener('keyup', this._onKeyupFunc, false);
         this.domElement.addEventListener('blur', this._onFocusOutAndMouseLeaveFunc, false);
         this.domElement.addEventListener('mouseleave', this._onFocusOutAndMouseLeaveFunc, false);
@@ -1189,6 +1191,7 @@ export default class AutoNumeric {
         this.domElement.removeEventListener('mouseleave', this._onFocusOutAndMouseLeaveFunc, false);
         this.domElement.removeEventListener('keydown', this._onKeydownFunc, false);
         this.domElement.removeEventListener('keypress', this._onKeypressFunc, false);
+        this.domElement.removeEventListener('input', this._onInputFunc, false);
         this.domElement.removeEventListener('keyup', this._onKeyupFunc, false);
         this.domElement.removeEventListener('paste', this._onPasteFunc, false);
         this.domElement.removeEventListener('wheel', this._onWheelFunc, false);
@@ -6225,6 +6228,8 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * @param {KeyboardEvent} e
      */
     _onKeydown(e) {
+        // eslint-disable-next-line no-console
+        console.log('_onKeydown: AutoNumericHelper.getElementValue(e.target) first:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
         this.formatted = false; // Keep track if the element has been formatted already. If that's the case, prevent further format calculations.
         this.isEditing = true; // Keep track if the user is currently editing the element manually
 
@@ -6294,6 +6299,8 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
 
             // If and only if the resulting value has changed after that backspace/delete, then we have to send an 'input' event like browsers normally do.
             targetValue = AutoNumericHelper.getElementValue(e.target); // Update the value since it could have been changed during the deletion
+            // eslint-disable-next-line no-console
+            console.log('targetValue:', targetValue, ' | this.lastVal:', this.lastVal); //DEBUG
             if ((targetValue !== this.lastVal) && this.throwInput) {
                 // Throw an input event when a character deletion is detected
                 this._triggerEvent(AutoNumeric.events.native.input, e.target);
@@ -6303,16 +6310,21 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
             this.lastVal = targetValue;
             this.throwInput = true;
         }
+        // eslint-disable-next-line no-console
+        console.log('_onKeydown: AutoNumericHelper.getElementValue(e.target) last:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
     }
 
     /**
      * Handler for 'keypress' events.
      * The user is still pressing the key, which will output a character (ie. '2') continuously until he releases the key.
-     * Note: 'keypress' events are not sent for delete keys like Backspace/Delete.
+     * Note: 'keypress' events are not sent for delete keys like Backspace/Delete under Chrome.
+     *       However they are sent under Firefox.
      *
      * @param {KeyboardEvent} e
      */
     _onKeypress(e) {
+        // eslint-disable-next-line no-console
+        console.log('_onKeypress: AutoNumericHelper.getElementValue(e.target) first:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
         if (this.eventKey === AutoNumericEnum.keyName.Insert) {
             return;
         }
@@ -6323,12 +6335,16 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
         if (this._processNonPrintableKeysAndShortcuts(e)) {
             return;
         }
+        // eslint-disable-next-line no-console
+        console.log('_onKeypress: AutoNumericHelper.getElementValue(e.target) 1:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
 
         if (processed) {
             e.preventDefault();
 
             return;
         }
+        // eslint-disable-next-line no-console
+        console.log('_onKeypress: AutoNumericHelper.getElementValue(e.target) 2:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
 
         const isCharacterInsertionAllowed = this._processCharacterInsertion();
         if (isCharacterInsertionAllowed) {
@@ -6356,6 +6372,13 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
         }
 
         e.preventDefault();
+        // eslint-disable-next-line no-console
+        console.log('_onKeypress: AutoNumericHelper.getElementValue(e.target) last:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
+    }
+
+    _onInput(e) { //FIXME Delete this
+        // eslint-disable-next-line no-console
+        console.log('_onInput: AutoNumericHelper.getElementValue(e.target) 1:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
     }
 
     /**
@@ -6366,6 +6389,8 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      */
     _onKeyup(e) {
         this.isEditing = false;
+        // eslint-disable-next-line no-console
+        console.log('_onKeyup: AutoNumericHelper.getElementValue(e.target) 1:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
 
         if (this.settings.isCancellable && this.eventKey === AutoNumericEnum.keyName.Esc) {
             // If the user wants to cancel its modifications, we drop the 'keyup' event for the Esc key
@@ -6429,6 +6454,8 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
         if (skip || targetValue === '') {
             return;
         }
+        // eslint-disable-next-line no-console
+        console.log('_onKeyup: AutoNumericHelper.getElementValue(e.target) 2:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
 
         // Added to properly place the caret when only the currency sign is present
         if (targetValue === this.settings.currencySymbol) {
@@ -6451,9 +6478,13 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
             this._saveValueToPersistentStorage();
         }
 
+        // eslint-disable-next-line no-console
+        console.log('_onKeyup: AutoNumericHelper.getElementValue(e.target) 3:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
         if (!this.formatted) {  //TODO Is this line needed? Considering that onKeydown and onKeypress both finish by setting it to false...
             this._formatValue(e);
         }
+        // eslint-disable-next-line no-console
+        console.log('_onKeyup: AutoNumericHelper.getElementValue(e.target) 4:', AutoNumericHelper.getElementValue(e.target)); //DEBUG
 
         // Force the `rawValue` update on Android Chrome
         this._saveRawValueForAndroid();
@@ -8187,6 +8218,8 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
     _setValueParts(left, right, isPaste = false) {
         const [normalizedLeft, normalizedRight, normalizedNewValue] = this._normalizeParts(left, right);
         const [minTest, maxTest] = AutoNumeric._checkIfInRangeWithOverrideOption(normalizedNewValue, this.settings);
+        // eslint-disable-next-line
+        console.log('_setValueParts(): minTest:', minTest, 'maxTest:', maxTest); //DEBUG
 
         if (minTest && maxTest) {
             // First, set the raw value
@@ -8531,7 +8564,11 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
             [left, right] = this._getUnformattedLeftAndRightPartAroundTheSelection();
         }
 
+        // eslint-disable-next-line no-console
+        console.log('_processCharacterDeletion() left, right:', left, right); //DEBUG
         this._setValueParts(left, right);
+        // eslint-disable-next-line no-console
+        console.log('_processCharacterDeletion: AutoNumericHelper.getElementValue(e.target) last:', AutoNumericHelper.getElementValue(this.domElement)); //DEBUG
     }
 
     /**

@@ -967,6 +967,13 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="testSuite">
+		<div class="test">
+			<p class="description">Issue #567</p>
+			<input id="issue_567" type="text" placeholder="#567">
+		</div>
+	</div>
 </div>
 <script>
     //-------------- Classic input
@@ -2073,6 +2080,32 @@
     //-------------- Issue #559
     new AutoNumeric('#issue_559', { alwaysAllowDecimalCharacter: true });
     new AutoNumeric('#issue_559_2', { alwaysAllowDecimalCharacter: false });
+
+    //-------------- Issue #567
+    const an567 = new AutoNumeric('#issue_567', 99.9999, {
+        digitGroupSeparator: '',
+        minimumValue: 0,
+        maximumValue: 100,
+        decimalPlaces: 4,
+    });
+    an567.node().addEventListener(AutoNumeric.events.formatted, e => {
+        console.log(`>> '${AutoNumeric.events.formatted}' sent with`, e); //DEBUG
+    });
+    an567.node().addEventListener(AutoNumeric.events.rawValueModified, e => {
+        console.log(`>> '${AutoNumeric.events.rawValueModified}' sent with`, e); //DEBUG
+    });
+    an567.node().addEventListener(AutoNumeric.events.native.change, e => {
+        console.log(`>> '${AutoNumeric.events.native.change}' sent with`, e); //DEBUG
+    });
+    an567.node().addEventListener(AutoNumeric.events.native.input, e => {
+        console.log(`>> '${AutoNumeric.events.native.input}' sent with`, e); //DEBUG
+    });
+    an567.node().addEventListener(AutoNumeric.events.minRangeExceeded, e => {
+        console.log(`>> '${AutoNumeric.events.minRangeExceeded}' sent with`, e); //DEBUG
+    });
+    an567.node().addEventListener(AutoNumeric.events.maxRangeExceeded, e => {
+        console.log(`>> '${AutoNumeric.events.maxRangeExceeded}' sent with`, e); //DEBUG
+    });
 </script>
 </body>
 </html>

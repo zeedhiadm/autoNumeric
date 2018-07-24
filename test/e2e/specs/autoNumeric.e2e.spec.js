@@ -217,6 +217,7 @@ const selectors = {
     issue574                          : '#issue_574',
     issue559                          : '#issue_559',
     issue559Default                   : '#issue_559_2',
+    issue567                          : '#issue_567',
 };
 
 //-----------------------------------------------------------------------------
@@ -3986,7 +3987,7 @@ describe('Issue #521', () => {
 });
 
 describe('Issue #574', () => {
-    it('should test for default values, and focus on it', () => {
+    it('should test for default values', () => {
         browser.url(testUrl);
 
         expect(browser.getValue(selectors.issue574)).toEqual('-0.05');
@@ -4003,7 +4004,7 @@ describe('Issue #574', () => {
 });
 
 describe('Issue #559', () => {
-    it('should test for default values, and focus on it', () => {
+    it('should test for default values', () => {
         browser.url(testUrl);
 
         expect(browser.getValue(selectors.issue559)).toEqual('12,345.68');
@@ -4053,6 +4054,21 @@ describe('Issue #559', () => {
         expect(browser.getValue(selectors.issue559)).toEqual('-1.23');
         browser.keys(['6']);
         expect(browser.getValue(selectors.issue559)).toEqual('-1.62');
+    });
+});
+
+fdescribe('Issue #567', () => {
+    it('should test for default values', () => {
+        browser.url(testUrl);
+
+        expect(browser.getValue(selectors.issue567)).toEqual('99.9999');
+    });
+
+    it(`should not accept the deletion of the decimal character since it would result in a number bigger than the maximum limit`, () => {
+        const input = $(selectors.issue567);
+        input.click();
+        browser.keys(['Home', 'ArrowRight', 'ArrowRight', 'Backspace']);
+        expect(browser.getValue(selectors.issue567)).toEqual('99.9999');
     });
 });
 
