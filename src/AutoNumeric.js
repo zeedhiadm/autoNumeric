@@ -1194,7 +1194,7 @@ export default class AutoNumeric {
         this._setupFormListener();
 
         if (AutoNumericHelper.isIE11()) {
-            this._onInputFunc = e => { this._onInput(e); };
+            this._onInputFunc = () => { this._onInput(); };
             this.domElement.addEventListener('input', this._onInputFunc, false);
         }
 
@@ -6576,10 +6576,9 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * Handler for 'input' events.
      * This is only used by IE11 when the user clicks the icon to empty the input element
      *
-     * @param {KeyboardEvent} e
      * @private
      */
-    _onInput(e) {
+    _onInput() {
         if (!this.isEditing && this.domElement.value === '') {
             // We infer that the IE 'reset' icon has been clicked, so we update the `rawValue` accordingly
             this.clear();
@@ -7317,14 +7316,14 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
             if (this.settings.wheelOn === AutoNumeric.options.wheelOn.focus) {
                 if (this.isFocused) {
                     if (!e.shiftKey) {
-                        this.wheelAction(e);
+                        this._wheelAction(e);
                     }
                 } else if (e.shiftKey) {
-                    this.wheelAction(e);
+                    this._wheelAction(e);
                 }
             } else if (this.settings.wheelOn === AutoNumeric.options.wheelOn.hover) {
                 if (!e.shiftKey) {
-                    this.wheelAction(e);
+                    this._wheelAction(e);
                 } else {
                     // Note: When not `defaultPrevented`, Shift + mouse wheel is reserved by the browsers for horizontal scrolling.
                     // Hence, using the Shift key with the `wheelOn` 'hover' option will only scroll the page if we prevent the default behavior
@@ -7344,7 +7343,7 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      *
      * @param {WheelEvent} e The `wheel` event
      */
-    wheelAction(e) {
+    _wheelAction(e) {
         this.isWheelEvent = true; // Keep the info that we are currently managing a mouse wheel event
 
         // 0) First, save the caret position so we can set it back once the value has been changed
