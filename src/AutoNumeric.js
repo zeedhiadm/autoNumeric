@@ -1193,6 +1193,11 @@ export default class AutoNumeric {
         this.domElement.addEventListener('drop', this._onDropFunc, false);
         this._setupFormListener();
 
+        if (AutoNumericHelper.isIE11()) {
+            this._onInputFunc = e => { this._onInput(e); };
+            this.domElement.addEventListener('input', this._onInputFunc, false);
+        }
+
         // Keep track if the event listeners have been initialized on this object
         this.hasEventListeners = true;
 
@@ -1221,6 +1226,10 @@ export default class AutoNumeric {
         this.domElement.removeEventListener('wheel', this._onWheelFunc, false);
         this.domElement.removeEventListener('drop', this._onDropFunc, false);
         this._removeFormListener();
+
+        if (AutoNumericHelper.isIE11()) {
+            this.domElement.removeEventListener('input', this._onInputFunc, false);
+        }
 
         // Keep track if the event listeners have been initialized on this object
         this.hasEventListeners = false;
@@ -6379,7 +6388,11 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * - keyup
      * - keyup
      *
+     * On IE, when clicking the cross icon to delete the input content, the following events are sent :
+     * - input
+     *
      * @param {KeyboardEvent} e
+     * @private
      */
     _onKeydown(e) {
         this.formatted = false; // Keep track if the element has been formatted already. If that's the case, prevent further format calculations.
@@ -6495,6 +6508,7 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * Note: 'keypress' events are not sent for delete keys like Backspace/Delete.
      *
      * @param {KeyboardEvent} e
+     * @private
      */
     _onKeypress(e) {
         if (this.formulaMode) {
@@ -6559,10 +6573,25 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
     }
 
     /**
+     * Handler for 'input' events.
+     * This is only used by IE11 when the user clicks the icon to empty the input element
+     *
+     * @param {KeyboardEvent} e
+     * @private
+     */
+    _onInput(e) {
+        if (!this.isEditing && this.domElement.value === '') {
+            // We infer that the IE 'reset' icon has been clicked, so we update the `rawValue` accordingly
+            this.clear();
+        }
+    }
+
+    /**
      * Handler for 'keyup' events.
      * The user just released any key, hence one event is sent.
      *
      * @param {KeyboardEvent} e
+     * @private
      */
     _onKeyup(e) {
         this.isEditing = false;
@@ -6709,6 +6738,7 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * Note: On focusout, the `rawValue` is never changed. Only the formatted value can be modified.
      *
      * @param {Event} e
+     * @private
      */
     _onFocusOutAndMouseLeave(e) {
         //TODO Create separate handlers for blur and mouseleave
@@ -6842,6 +6872,7 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * Handler for 'paste' event
      *
      * @param {Event|ClipboardEvent} e
+     * @private
      */
     _onPaste(e) {
         //FIXME When pasting '000' on a thousand group selection, the whole selection gets deleted, and only one '0' is pasted (cf. issue #302)
@@ -7250,6 +7281,7 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * We also update the info of the focused state in the `this.isFocused` variable.
      *
      * @param {Event} e
+     * @private
      */
     _onBlur(e) {
         // Keep track if the element is currently focused
@@ -7269,6 +7301,7 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * Handler for 'wheel' event
      *
      * @param {WheelEvent} e
+     * @private
      */
     _onWheel(e) {
         if (this.formulaMode) {
@@ -7390,6 +7423,7 @@ To solve that, you'd need to either set \`decimalPlacesRawValue\` to \`null\`, o
      * Handler for 'drop' event
      *
      * @param {DragEvent} e
+     * @private
      */
     _onDrop(e) {
         if (this.formulaMode) { // Dropping while in formula mode shouldn't be possible. This is done 'just in case'
